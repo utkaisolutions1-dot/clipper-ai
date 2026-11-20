@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clipper AI Studio — by UTKAI Solutions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: #09090b;
+      color: #f4f4f5;
+      font-family: Inter, system-ui, sans-serif;
+    }
+    .glass {
+      background: rgba(24, 24, 27, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="sticky top-0 z-30 glass border-b border-zinc-800/80">
+    <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 flex items-center justify-center font-bold text-white shadow-lg shadow-violet-500/20">
+          ⚡
+        </div>
+        <div class="flex items-center flex-wrap gap-2">
+          <span class="font-bold text-lg tracking-tight">Clipper AI</span>
+          <a href="https://utkai-solutions.utkai-solutions1.workers.dev/" target="_blank" rel="noopener noreferrer"
+             class="text-xs px-2.5 py-0.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 hover:bg-violet-500/25 transition">
+            by UTKAI Solutions ↗
+          </a>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <a href="https://github.com/utkaisolutions1-dot/clipper-ai" target="_blank" rel="noopener noreferrer"
+           class="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 transition">
+          <span>⭐</span>
+          <span>GitHub</span>
+        </a>
+
+        <button onclick="openModal()" id="apiBtn" type="button"
+          class="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 transition">
+          <span>⚙️</span>
+          <span>API Keys</span>
+          <span id="keyDot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-5 py-10 space-y-10">
+
+    <!-- Hero & Input -->
+    <section class="text-center space-y-6 max-w-3xl mx-auto">
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-zinc-200 to-violet-300 bg-clip-text text-transparent">
+        Convierte streams largos en clips virales 9:16
+      </h1>
+      <p class="text-zinc-400 text-base">
+        Pega un enlace de YouTube. La IA detecta reacciones intensas, encuadra la cámara del streamer en formato PiP y añade subtítulos dinámicos automáticamente.
+      </p>
+
+      <form id="generateForm" class="glass p-3 rounded-2xl shadow-2xl flex flex-col sm:flex-row gap-3">
+        <input id="youtubeUrl" type="url" required
+          placeholder="https://www.youtube.com/watch?v=..."
+          class="flex-1 bg-zinc-950/90 border border-zinc-800 rounded-xl px-4 py-3.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-violet-500" />
+
+        <div class="flex items-center gap-2 bg-zinc-950/90 border border-zinc-800 rounded-xl px-3">
+          <label for="numClips" class="text-xs text-zinc-400 whitespace-nowrap">Clips:</label>
+          <input id="numClips" type="number" min="1" max="20" value="5"
+            class="w-14 bg-transparent py-3 text-sm text-center font-semibold text-white focus:outline-none" />
+        </div>
+
+        <button id="submitBtn" type="submit"
+          class="px-6 py-3.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-lg shadow-violet-600/25 transition disabled:opacity-50 whitespace-nowrap">
+          Generar Clips
+        </button>
+      </form>
+    </section>
+
+    <!-- Live Progress Box -->
+    <section id="progressSection" class="hidden max-w-3xl mx-auto glass rounded-2xl p-5 space-y-3">
+      <div class="flex items-center justify-between text-sm">
+        <span id="statusText" class="font-medium text-zinc-200">Iniciando...</span>
+        <span id="progressPercent" class="font-bold text-violet-400">0%</span>
+      </div>
+      <div class="w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden">
+        <div id="progressBar" class="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-500" style="width: 0%"></div>
+      </div>
+    </section>
+
+    <!-- Generated Clips Grid -->
+    <section id="resultsSection" class="hidden space-y-5">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold tracking-tight">Clips Generados en esta sesión</h2>
+        <span id="clipsCountBadge" class="text-xs px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-300">0 clips</span>
+      </div>
+      <div id="clipsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </section>
+
+    <!-- Saved Library -->
+    <section class="space-y-5 pt-4 border-t border-zinc-800/80">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-zinc-300">Biblioteca local (output_clips)</h2>
+        <button onclick="loadLibrary()" type="button" class="text-xs text-violet-400 hover:text-violet-300">
+          Actualizar lista
+        </button>
+      </div>
+      <div id="libraryGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5"></div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-800/80 py-6 text-center text-xs text-zinc-500">
+    Desarrollado por
+    <a href="https://utkai-solutions.utkai-solutions1.workers.dev/" target="_blank" rel="noopener noreferrer"
+       class="text-violet-400 hover:text-violet-300 font-medium">
+      UTKAI Solutions
+    </a>
+    · Código abierto en
+    <a href="https://github.com/utkaisolutions1-dot/clipper-ai" target="_blank" rel="noopener noreferrer"
+       class="text-zinc-300 hover:text-white underline">
+      GitHub
+    </a>
+  </footer>
+
+  <!-- Modal API Keys -->
+  <div id="apiModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold">Configurar API Keys (Local)</h3>
+        <button onclick="closeModal()" type="button" class="text-zinc-400 hover:text-white text-xl">&times;</button>
+      </div>
+      <p class="text-xs text-zinc-400">
+        Tus claves se guardan únicamente en tu archivo <code class="text-zinc-200">.env</code> local y nunca se comparten con terceros.
+      </p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-zinc-300 mb-1">GEMINI_API_KEY (Google AI Studio)</label>
+          <input id="geminiInput" type="password" placeholder="AIzaSy..."
+            class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-violet-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-zinc-300 mb-1">GROQ_API_KEY (Subtítulos + Plan B)</label>
+          <input id="groqInput" type="password" placeholder="gsk_..."
+            class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-violet-500" />
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal()" type="button" class="px-4 py-2 rounded-xl text-sm text-zinc-400 hover:text-white">Cancelar</button>
+        <button onclick="saveKeys()" type="button" class="px-5 py-2 rounded-xl text-sm font-semibold bg-violet-600 hover:bg-violet-500 text-white">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let pollTimer = null;
+    let renderedCount = 0;
+
+    async function checkConfig() {
+      try {
+        const res = await fetch('/api/config');
+        const data = await res.json();
+        const dot = document.getElementById('keyDot');
+        dot.className = (data.has_gemini && data.has_groq)
+          ? 'w-2 h-2 rounded-full bg-emerald-400'
+          : 'w-2 h-2 rounded-full bg-amber-400';
+      } catch (err) {
+        console.error('Error checking config:', err);
+      }
+    }
+
+    function openModal() {
+      document.getElementById('apiModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('apiModal').classList.add('hidden');
+    }
+
+    async function saveKeys() {
+      const gemini_api_key = document.getElementById('geminiInput').value;
+      const groq_api_key = document.getElementById('groqInput').value;
+
+      await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gemini_api_key, groq_api_key })
+      });
+
+      document.getElementById('geminiInput').value = '';
+      document.getElementById('groqInput').value = '';
+      closeModal();
+      checkConfig();
+    }
+
+    function createClipCard(clip) {
+      const scoreBadge = clip.virality_score
+        ? `<span class="absolute top-3 right-3 px-2.5 py-1 rounded-lg text-xs font-bold bg-black/75 border border-violet-500/40 text-violet-300">🔥 ${clip.virality_score}/100</span>`
+        : '';
+
+      const timeRange = clip.start_time
+        ? `<p class="text-xs text-zinc-400">⏱ ${clip.start_time} – ${clip.end_time}</p>`
+        : '';
+
+      const reasonText = clip.reason
+        ? `<p class="text-xs text-zinc-400 line-clamp-2">${clip.reason}</p>`
+        : '';
+
+      return `
+        <div class="glass rounded-2xl overflow-hidden flex flex-col shadow-xl">
+          <div class="aspect-[9/16] bg-black relative">
+            <video src="${clip.url}" controls preload="metadata" class="w-full h-full object-contain"></video>
+            ${scoreBadge}
+          </div>
+          <div class="p-4 flex-1 flex flex-col justify-between gap-3">
+            <div class="space-y-1">
+              <h3 class="font-semibold text-sm text-white line-clamp-2">${clip.title}</h3>
+              ${timeRange}
+              ${reasonText}
+            </div>
+            <a href="${clip.url}" download="${clip.filename}"
+              class="w-full text-center py-2.5 rounded-xl text-xs font-semibold bg-zinc-800 hover:bg-violet-600 text-white transition">
+              ⬇ Descargar MP4
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadLibrary() {
+      try {
+        const res = await fetch('/api/library');
+        const data = await res.json();
+        const grid = document.getElementById('libraryGrid');
+
+        if (!data.clips || !data.clips.length) {
+          grid.innerHTML = '<p class="text-sm text-zinc-500 col-span-full">Aún no hay clips guardados en output_clips.</p>';
+          return;
+        }
+
+        grid.innerHTML = data.clips.map(createClipCard).join('');
+      } catch (err) {
+        console.error('Error loading library:', err);
+      }
+    }
+
+    document.getElementById('generateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const youtube_url = document.getElementById('youtubeUrl').value.trim();
+      const num_clips = parseInt(document.getElementById('numClips').value, 10) || 5;
+      const submitBtn = document.getElementById('submitBtn');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Procesando...';
+      renderedCount = 0;
+      document.getElementById('progressSection').classList.remove('hidden');
+      document.getElementById('resultsSection').classList.remove('hidden');
+      document.getElementById('clipsGrid').innerHTML = '';
+      document.getElementById('clipsCountBadge').textContent = '0 clips';
+      document.getElementById('statusText').textContent = 'Enviando video al motor de IA...';
+      document.getElementById('progressBar').style.width = '5%';
+      document.getElementById('progressPercent').textContent = '5%';
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ youtube_url, num_clips })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.detail || 'Error iniciando proceso');
+        }
+
+        if (pollTimer) {
+          clearInterval(pollTimer);
+        }
+        pollTimer = setInterval(() => pollJob(data.job_id), 2500);
+      } catch (err) {
+        document.getElementById('statusText').textContent = err.message;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Generar Clips';
+      }
+    });
+
+    async function pollJob(jobId) {
+      try {
+        const res = await fetch(`/api/jobs/${jobId}`);
+        const job = await res.json();
+
+        document.getElementById('statusText').textContent = job.message;
+        document.getElementById('progressBar').style.width = `${job.progress}%`;
+        document.getElementById('progressPercent').textContent = `${job.progress}%`;
+
+        if (job.clips && job.clips.length > renderedCount) {
+          const grid = document.getElementById('clipsGrid');
+          for (let i = renderedCount; i < job.clips.length; i++) {
+            grid.insertAdjacentHTML('beforeend', createClipCard(job.clips[i]));
+          }
+          renderedCount = job.clips.length;
+          document.getElementById('clipsCountBadge').textContent = `${renderedCount} clips`;
+        }
+
+        if (job.status === 'completed' || job.status === 'error') {
+          clearInterval(pollTimer);
+          const submitBtn = document.getElementById('submitBtn');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Generar Clips';
+          loadLibrary();
+        }
+      } catch (err) {
+        console.error('Error polling job:', err);
+      }
+    }
+
+    checkConfig();
+    loadLibrary();
+  </script>
+</body>
+</html>

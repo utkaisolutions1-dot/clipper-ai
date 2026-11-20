@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+google-genai
+groq
+yt-dlp
+opencv-python
+python-dotenv
+pydantic

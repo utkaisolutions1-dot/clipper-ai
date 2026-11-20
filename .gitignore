@@ -1,0 +1,8 @@
+.env
+Cookies.txt
+cookies.txt
+venv/
+__pycache__/
+*.pyc
+temp/
+output_clips/
