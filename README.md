@@ -112,3 +112,7 @@ Si ya tienes **Docker Desktop** (o Docker Engine + Compose) instalado, puedes le
 ---
 
 Desarrollado por **[UTKAI Solutions](https://utkai-solutions.utkai-solutions1.workers.dev)** · [https://utkai-solutions.utkai-solutions1.workers.dev](https://utkai-solutions.utkai-solutions1.workers.dev)
+
+## 📄 Licencia
+
+Este proyecto es de código abierto y se distribuye bajo la [Licencia MIT](LICENSE).
