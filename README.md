@@ -1,30 +1,64 @@
-# ⚡ Clipper AI — Generador Automático de Clips Virales 9:16
+# ⚡ Clipper AI Studio — De streams a Shorts 9:16
 
-Herramienta open source desarrollada por **[UTKAI Solutions](https://utkai-solutions.utkai-solutions1.workers.dev/)** que transforma streams largos y videos de YouTube en clips verticales listos para **TikTok, Reels y YouTube Shorts**.
+Herramienta open source desarrollada por **[UTKAI Solutions](https://utkai-solutions.utkai-solutions1.workers.dev/)** para **creadores, streamers y editores**. Transforma directos largos y videos de YouTube en clips verticales `1080×1920` listos para **TikTok, Instagram Reels y YouTube Shorts**.
 
-## ✨ Características principales
-- **Análisis Multimodal Inteligente:** Detecta momentos de alta carga emocional (gritos, risas, sustos, reacciones épicas) usando **Gemini** con respaldo automático vía **Groq (Whisper + LLM)**.
-- **Descarga Quirúrgica:** Descarga únicamente los fragmentos seleccionados con `yt-dlp` sin bajar directos completos de varias horas.
-- **Diseño Picture-in-Picture (PiP) 1080×1920:** Detecta automáticamente la webcam del streamer y la encuadra en una tarjeta flotante con esquinas redondeadas y fondo ambiental difuminado.
-- **Subtítulos Dinámicos:** Transcripción ultrarrápida con Groq Whisper quemada directamente en el video con FFmpeg.
-- **Interfaz Web Local (BYOK):** Panel visual moderno donde cada usuario configura sus propias API Keys sin instalar Node.js.
+## ✨ ¿Qué hace Clipper AI?
 
-## 🚀 Instalación rápida
+- **Detección multimodal con Gemini:** Analiza momentos de alta carga emocional (reacciones épicas, risas, sustos, picos de audio) sin tener que descargar todo el directo.
+- **Descarga quirúrgica (`yt-dlp`):** Extrae únicamente los fragmentos seleccionados para ahorrar tiempo y espacio en disco.
+- **Encuadre vertical 9:16 con Facecam PiP:** Detecta la cámara del streamer y la ubica en formato *Picture-in-Picture* con fondo difuminado.
+- **Subtítulos dinámicos con Groq Whisper + FFmpeg:** Transcribe el audio a gran velocidad y quema subtítulos de alto contraste directo en el video final (`output_clips/`).
+- **Interfaz web local en `http://localhost:8000`:** Panel visual para pegar enlaces, seguir el progreso en tiempo real y reproducir o descargar tus clips.
 
-### Requisitos previos
-- Python 3.10+
-- [FFmpeg](https://ffmpeg.org/download.html) instalado en el PATH del sistema.
+---
 
-### Pasos
+## 🔑 Paso previo: Consigue tus API Keys gratis
+
+Clipper AI utiliza el modelo **BYOK** (*Bring Your Own Key*): tus claves se guardan únicamente en tu archivo local `.env`.
+
+1. **Google AI Studio (Gemini):** Obtén tu clave gratis en [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. **Groq Console (Whisper + respaldo):** Obtén tu clave gratis en [console.groq.com/keys](https://console.groq.com/keys)
+
+---
+
+## 🐳 Opción 1: Ejecución con Docker (Recomendada)
+
+Ideal si ya tienes **Docker Desktop** instalado y quieres olvidarte de instalar Python o FFmpeg manualmente.
+
+1. Copia `.env.example` a `.env` y pega tus dos API keys:
+   ```bash
+   cp .env.example .env
+   ```
+   *(En Windows PowerShell: `Copy-Item .env.example .env`)*
+
+2. Levanta el contenedor:
+   ```bash
+   docker compose up -d --build
+   ```
+
+3. Abre tu navegador en **`http://localhost:8000`**.
+   Todos los clips generados se guardarán automáticamente en tu carpeta local **`./output_clips`**.
+
+Para detenerlo cuando termines:
 ```bash
-git clone [https://github.com/utkaisolutions1-dot/clipper-ai.git](https://github.com/utkaisolutions1-dot/clipper-ai.git)
-cd clipper-ai
+docker compose down
+```
 
-python -m venv venv
-# En Windows:
-venv\Scripts\activate
-# En macOS/Linux:
-source venv/bin/activate
+---
 
-pip install -r requirements.txt
-python app.py
+## 🪟 Opción 2: Instalación rápida en Windows (Doble clic)
+
+Pensada para usarla directo en Windows sin complicaciones de terminal:
+
+1. **Requisitos previos:**
+   - [Python 3.10 o superior](https://www.python.org/downloads/) *(marca "Add Python to PATH" al instalar)*.
+   - [FFmpeg](https://ffmpeg.org/download.html) en tu PATH *(puedes instalarlo rápido en PowerShell con `winget install Gyan.FFmpeg`)*.
+
+2. **Instalar:**
+   Haz doble clic en **`instalar.bat`**. Este script creará el entorno virtual `.venv`, instalará todas las librerías de `requirements.txt` y generará tu archivo `.env`.
+
+3. **Configurar tus claves:**
+   Abre el archivo **`.env`** con el Bloc de notas y pega tu `GEMINI_API_KEY` y tu `GROQ_API_KEY`.
+
+4. **Iniciar:**
+   Haz doble clic en **`iniciar.bat`**. Se abrirá automáticamente **`http://localhost:8000`** en tu navegador y verás el progreso de cada clip en la consola.

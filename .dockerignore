@@ -1,0 +1,16 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.git/
+.gitignore
+.env
+temp/
+output_clips/
+*.mp4
+*.mkv
+*.webm
+*.mov
+Cookies.txt
+cookies.txt

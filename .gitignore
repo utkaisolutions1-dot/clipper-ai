@@ -1,8 +1,19 @@
+# Credenciales y cookies locales
 .env
 Cookies.txt
 cookies.txt
+
+# Entornos virtuales y caché de Python
+.venv/
 venv/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Videos, temporales y clips generados
 temp/
 output_clips/
+*.mp4
+*.mkv
+*.webm
+*.mov

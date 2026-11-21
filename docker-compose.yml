@@ -1,0 +1,11 @@
+services:
+  clipper-ai:
+    build: .
+    container_name: clipper-ai-studio
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./output_clips:/app/output_clips
+    restart: unless-stopped
